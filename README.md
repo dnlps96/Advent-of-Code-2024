@@ -1,3 +1,3 @@
-# Advent of Code 2024
+# Advent of Code 2024 in ABAP
 
-all solutions will be in ABAP
+This repository holds my solutions in ABAP for the [Advent of Code 2024](https://adventofcode.com/2024) puzzles.
