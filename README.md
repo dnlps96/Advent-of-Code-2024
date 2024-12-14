@@ -14,7 +14,7 @@ This repository holds my solutions in ABAP for the [Advent of Code 2024](https:/
 ##### [Day 8: Resonant Collinearity](/src/z_aoc24_tag_8.prog.abap)
 ##### [Day 9: Disk Fragmenter](/src/z_aoc24_tag_9.prog.abap)
 ##### [Day 10: Hoof It](/src/z_aoc24_tag_10.prog.abap)
-##### Day 11: Plutonian Pebbles
+##### [Day 11: Plutonian Pebbles](/src/z_aoc24_tag_11.prog.abap)
 ##### Day 12: Garden Groups
 ##### [Day 13: Claw Contraption](/src/z_aoc24_tag_13.prog.abap) - only Part 1
 ##### [Day 14: Restroom Redoubt](/src/z_aoc24_tag_14.prog.abap) - only Part 1
