@@ -11,6 +11,12 @@ TYPES: BEGIN OF ty_disk,
          flg_leer TYPE c LENGTH 1,
        END OF ty_disk.
 
+TYPES: BEGIN OF ty_disk2,
+         id       TYPE i,
+         length   TYPE i,
+         flg_leer TYPE c LENGTH 1,
+       END OF ty_disk2.
+
 DATA: lv_filename TYPE string,
       lt_data     TYPE TABLE OF string,
       lv_data     TYPE string.
@@ -26,7 +32,16 @@ DATA: lt_disk_start TYPE TABLE OF ty_disk,
       lv_id         TYPE i,
       lv_result     TYPE int8.
 
-FIELD-SYMBOLS: <fs_disk_end> TYPE ty_disk.
+DATA: lt_disk_start2 TYPE TABLE OF ty_disk2,
+      ls_disk_start2 TYPE ty_disk2,
+      lt_disk_end2   TYPE TABLE OF ty_disk2,
+      ls_disk_end2   TYPE ty_disk2,
+      lv_insert      TYPE i,
+      lv_index       TYPE i.
+
+FIELD-SYMBOLS: <fs_disk_end>       TYPE ty_disk,
+               <fs_disk_end2>      TYPE ty_disk2,
+               <fs_disk_end2_temp> TYPE ty_disk2.
 
 lv_filename = 'I:\Advent_of_Code\Tag_9.txt'.
 
@@ -123,8 +138,103 @@ WRITE: / lv_result.
 * Part 2
 *****************************************************************************
 
-LOOP AT lt_data INTO lv_data.
+CLEAR: lv_result.
 
+READ TABLE lt_data INTO lv_data INDEX 1.
 
+lv_length = strlen( lv_data ).
+
+lv_id = '-1'.
+lv_flg_block = 'X'.
+
+DO lv_length TIMES.
+
+  lv_offset = sy-index - 1.
+  lv_zahl = lv_data+lv_offset(1).
+
+  IF lv_flg_block = 'X'.
+
+    lv_id = lv_id + 1.
+
+    ls_disk_start2-id = lv_id.
+    ls_disk_start2-length = lv_zahl.
+    ls_disk_start2-flg_leer = ''.
+    APPEND ls_disk_start2 TO lt_disk_start2.
+
+    lv_flg_block = ''.
+
+  ELSE.
+
+    IF lv_zahl <> 0.
+      ls_disk_start2-id = ''.
+      ls_disk_start2-length = lv_zahl.
+      ls_disk_start2-flg_leer = 'X'.
+      APPEND ls_disk_start2 TO lt_disk_start2.
+    ENDIF.
+
+    lv_flg_block = 'X'.
+
+  ENDIF.
+
+ENDDO.
+
+lt_disk_end2 = lt_disk_start2.
+
+SORT lt_disk_start2 BY id DESCENDING.
+DELETE lt_disk_start2 WHERE flg_leer = 'X'.
+
+LOOP AT lt_disk_start2 INTO ls_disk_start2.
+
+  LOOP AT lt_disk_end2 ASSIGNING <fs_disk_end2> WHERE length >= ls_disk_start2-length AND flg_leer = 'X'.
+
+    lv_insert = sy-tabix.
+
+    READ TABLE lt_disk_end2 WITH KEY id = ls_disk_start2-id ASSIGNING <fs_disk_end2_temp>.
+
+    IF sy-tabix > lv_insert.
+
+      <fs_disk_end2_temp>-flg_leer = 'X'.
+
+      IF <fs_disk_end2>-length = ls_disk_start2-length.
+
+        <fs_disk_end2>-id = ls_disk_start2-id.
+        <fs_disk_end2>-flg_leer = ''.
+
+      ELSE.
+
+        ls_disk_end2-id = ''.
+        ls_disk_end2-length = <fs_disk_end2>-length - ls_disk_start2-length.
+        ls_disk_end2-flg_leer = 'X'.
+
+        INSERT ls_disk_end2 INTO lt_disk_end2 INDEX lv_insert + 1.
+
+        <fs_disk_end2>-id = ls_disk_start2-id.
+        <fs_disk_end2>-length = ls_disk_start2-length.
+        <fs_disk_end2>-flg_leer = ''.
+
+      ENDIF.
+    ENDIF.
+
+    EXIT.
+
+  ENDLOOP.
+ENDLOOP.
+
+lv_index = '-1'.
+
+* get checksum
+LOOP AT lt_disk_end2 INTO ls_disk_end2.
+
+  DO ls_disk_end2-length TIMES.
+
+    lv_index = lv_index + 1.
+
+    IF ls_disk_end2-flg_leer <> 'X'.
+      lv_result = lv_result + ls_disk_end2-id * lv_index.
+    ENDIF.
+
+  ENDDO.
 
 ENDLOOP.
+
+WRITE: / lv_result.
